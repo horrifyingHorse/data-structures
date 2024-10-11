@@ -1,0 +1,15 @@
+{
+  "name": "dstruct",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "bst": "tsc bst.ts && node bst.js && del bst.js",
+    "bst.ts": "tsc bst.ts && node bst.js && del bst.js"
+  },
+  "author": "asbestos",
+  "license": "ISC",
+  "description": "data structuring in the worst way possible",
+  "dependencies": {
+    "@types/node": "^22.7.5"
+  }
+}
