@@ -4,7 +4,7 @@ class _bstreenode {
   public right: _bstreenode | null;
 
   constructor(d: number);
-  constructor (d: number) {
+  constructor(d: number) {
     this.data = d;
     this.left = null;
     this.right = null;
@@ -38,7 +38,7 @@ class BSTree {
 
     this.prev = this.cur;
     if (data < this.cur?.data) {
-      this.cur = this.cur.left; 
+      this.cur = this.cur.left;
     } else {
       this.cur = this.cur?.right;
     }
@@ -60,7 +60,7 @@ class BSTree {
 
   private _removeHelper(data: number) {
     this._bstreeSearch(data);
-    
+
     if (!this.dataExists || this.cur === null || this.prev == null) {
       return;
     }
@@ -90,9 +90,9 @@ class BSTree {
     }
 
     // leaf node or @least 1 child
-    let pointTo: _bstreenode | null = 
+    let pointTo: _bstreenode | null =
       (this.cur.right != null)
-        ? this.cur.right 
+        ? this.cur.right
         : this.cur.left;
 
     if (this.cur === this.prev.left) {
@@ -121,7 +121,7 @@ class BSTree {
     return;
   }
 
-  constructor () {
+  constructor() {
     this.root = null;
     this.cur = this.root;
     this.prev = this.root;
@@ -135,7 +135,7 @@ class BSTree {
   public insert(data: number): void {
     this._ptrReset();
     this._bstreeSearch(data);
-  
+
     if (this.dataExists) {
       this.dataExists = false;
       return;
@@ -151,7 +151,7 @@ class BSTree {
 
     const newNode: _bstreenode = new _bstreenode(data);
     if (data < this.cur.data) {
-      this.cur.left = newNode; 
+      this.cur.left = newNode;
     } else {
       this.cur.right = newNode;
     }
