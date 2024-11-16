@@ -1,12 +1,24 @@
+#include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 // using Adjacency List
-#define VERTICE 5
+#define VERTICE 7
 
 struct node {
   int vertex;
   struct node* link;
+};
+
+struct queue {
+  int q[VERTICE];
+  int front, rear;
+};
+
+struct stack {
+  int s[VERTICE];
+  int top;
 };
 
 struct node* initNode(int vertex) {
@@ -16,6 +28,53 @@ struct node* initNode(int vertex) {
 
   return newNode;
 }
+
+struct queue* initQueue() {
+  struct queue* q = (struct queue*)malloc(sizeof(struct queue));
+  q->rear = -1;
+  q->front = -1;
+
+  return q;
+}
+
+struct stack* initStack() {
+  struct stack* s = (struct stack*)malloc(sizeof(struct stack));
+  s->top = -1;
+
+  return s;
+}
+
+struct queue* enQueue(struct queue* q, int n) {
+  if (!q) return q;
+  q->q[++q->rear % VERTICE] = n;
+  if (q->rear == 0) q->front = 0;
+
+  return q;
+}
+
+int deQueue(struct queue* q) {
+  if (!q || q->front > q->rear || q->front == -1) return INT_MAX;
+
+  return q->q[q->front++];
+}
+
+bool queueIsEmpty(struct queue* q) {
+  return ((q->front == -1 && q->rear == -1) || q->front > q->rear);
+}
+
+struct stack* push(struct stack* s, int n) {
+  if (!s || s->top >= VERTICE - 1) return s;
+  s->s[++s->top] = n;
+
+  return s;
+}
+
+int pop(struct stack* s) {
+  if (!s || s->top == -1) return INT_MAX;
+  return s->s[s->top--];
+}
+
+bool stackIsEmpty(struct stack* s) { return (!s || s->top == -1); }
 
 struct node** graphCreate() {
   struct node** graph = (struct node**)malloc(sizeof(struct node*) * VERTICE);
@@ -37,14 +96,15 @@ struct node** graphAddEdge(struct node** graph, int n, int m) {
   struct node* newNode = initNode(m);
 
   // O(1) Time
-  newNode->link = graph[n]->link;
-  graph[n]->link = newNode;
+  /* newNode->link = graph[n]->link;
+   * graph[n]->link = newNode;
+   *
+   * newNode = initNode(n);
+   * newNode->link = graph[m]->link;
+   * graph[m]->link = newNode;
+   */
 
-  newNode = initNode(n);
-  newNode->link = graph[m]->link;
-  graph[m]->link = newNode;
-
-  /* Keeping an order [ ]
+  /* Keeping an order [ ] */
   struct node* temp = graph[n];
   while (temp != NULL && temp->link != NULL && temp->link->vertex < m) {
     temp = temp->link;
@@ -63,7 +123,7 @@ struct node** graphAddEdge(struct node** graph, int n, int m) {
     newNode->link = temp->link;
     temp->link = newNode;
   }
-  */
+  /**/
 
   return graph;
 }
@@ -162,26 +222,67 @@ struct node** graphDelete(struct node** graph) {
   return NULL;
 }
 
+void bfs(struct node** graph, int src) {
+  bool visited[VERTICE] = {false};
+  struct queue* q = initQueue();
+
+  visited[src] = true;
+  enQueue(q, src);
+  while (!queueIsEmpty(q)) {
+    int n = deQueue(q);
+    printf("%d ", n);
+
+    struct node* temp = graph[n]->link;
+    while (temp) {
+      if (!visited[temp->vertex]) {
+        visited[temp->vertex] = true;
+        enQueue(q, temp->vertex);
+      }
+      temp = temp->link;
+    }
+  }
+}
+
+void dfs(struct node** graph, int src) {
+  bool visited[VERTICE] = {false};
+  struct stack* s = initStack();
+
+  visited[src] = true;
+  push(s, src);
+  while(!stackIsEmpty(s)) {
+    int n = pop(s);
+    printf("%d ", n);
+    struct node* temp = graph[n]->link;
+    while (temp) {
+      if(!visited[temp->vertex]) {
+        visited[temp->vertex] = true;
+        push(s, temp->vertex);
+      }
+      temp = temp->link;
+    }
+  }
+}
+
 int main() {
   struct node** graph = graphCreate();
 
-  graphAddEdge(graph, 2, 3);
   graphAddEdge(graph, 0, 1);
-  graphAddEdge(graph, 0, 2);
+  graphAddEdge(graph, 0, 3);
   graphAddEdge(graph, 1, 2);
+  graphAddEdge(graph, 1, 3);
+  graphAddEdge(graph, 1, 5);
+  graphAddEdge(graph, 1, 6);
+  graphAddEdge(graph, 2, 3);
+  graphAddEdge(graph, 2, 4);
+  graphAddEdge(graph, 2, 5);
+  graphAddEdge(graph, 3, 4);
+  graphAddEdge(graph, 4, 6);
 
-  graphDisplay(graph);
+  printf("BFS Traversal: ");
+  bfs(graph, 0);
 
-  printf("\n");
-
-  graphRemEdge(graph, 2, 3);
-  graphRemEdge(graph, 0, 1);
-  graphRemEdge(graph, 0, 2);
-  graphRemEdge(graph, 1, 2);
-
-  // graph = graphClear(graph);
-
-  graphDisplay(graph);
+  printf("\nDFS Traversal: ");
+  dfs(graph, 0);
 
   graph = graphDelete(graph);
 
